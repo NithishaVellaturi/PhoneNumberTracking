@@ -138,7 +138,7 @@ public class AuthService {
                 .httpOnly(httpOnly)
                 .secure(securityProperties.cookieSecure())
                 .path("/")
-                .sameSite("Lax")
+                .sameSite(securityProperties.cookieSameSite())
                 .maxAge(maxAge)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -149,7 +149,7 @@ public class AuthService {
                 .httpOnly(true)
                 .secure(securityProperties.cookieSecure())
                 .path("/")
-                .sameSite("Lax")
+                .sameSite(securityProperties.cookieSameSite())
                 .maxAge(Duration.ZERO)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

@@ -114,7 +114,22 @@ export function toApiError(error: unknown) {
   }
 
   const responseData = error.response?.data as { message?: string; data?: ErrorDetails } | undefined
-  return new ApiError(responseData?.message ?? error.message ?? 'Request failed.', {
+  const requestUrl = typeof error.config?.url === 'string' ? error.config.url : ''
+  const requestBaseUrl = typeof error.config?.baseURL === 'string' ? error.config.baseURL : baseURL
+  const isBrowser = typeof window !== 'undefined'
+  const hostname = isBrowser ? window.location.hostname : ''
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1'
+  const isMissingProductionApi =
+    error.response?.status === 404 &&
+    !isLocalhost &&
+    requestBaseUrl === '/api' &&
+    requestUrl.startsWith('/')
+
+  const message = isMissingProductionApi
+    ? 'Backend API is not configured for this deployment. Set VITE_API_BASE_URL in Netlify and deploy the Spring Boot backend separately.'
+    : responseData?.message ?? error.message ?? 'Request failed.'
+
+  return new ApiError(message, {
     status: error.response?.status,
     code: responseData?.data?.code,
     fieldErrors: responseData?.data?.fieldErrors,

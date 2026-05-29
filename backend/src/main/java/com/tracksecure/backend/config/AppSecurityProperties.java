@@ -7,6 +7,7 @@ public record AppSecurityProperties(
         String jwtSecret,
         long accessTokenMinutes,
         long refreshTokenDays,
-        boolean cookieSecure
+        boolean cookieSecure,
+        String cookieSameSite
 ) {
 }
