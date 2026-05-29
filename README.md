@@ -80,3 +80,49 @@ COOKIE_SAME_SITE=None
 ```
 
 This requires the backend to be served over HTTPS.
+
+## Fastest backend host: Railway
+
+If you do not have a backend host yet, Railway is the fastest option for this Spring Boot backend.
+
+Railway has official guides for:
+
+- deploying Spring Boot apps
+- deploying monorepos with a service root directory
+
+For this repo:
+
+1. Create a Railway project.
+2. Connect this GitHub repo: `vellaturinithisha/Phone-Number-Tracking-`
+3. For the backend service, set the Root Directory to:
+
+```bash
+/backend
+```
+
+4. Deploy the service and generate a public domain.
+5. Add these backend environment variables in Railway:
+
+```bash
+FRONTEND_ORIGIN=https://6a197b92c5051e1dac470a8e--monumental-cocada-2d12f0.netlify.app
+COOKIE_SECURE=true
+COOKIE_SAME_SITE=None
+JWT_SECRET=replace-with-a-long-random-secret
+DB_URL=jdbc:postgresql://YOUR_RAILWAY_POSTGRES_HOST:YOUR_PORT/YOUR_DB
+DB_USERNAME=YOUR_DB_USER
+DB_PASSWORD=YOUR_DB_PASSWORD
+DB_DRIVER=org.postgresql.Driver
+```
+
+6. In Netlify, set:
+
+```bash
+VITE_API_BASE_URL=https://YOUR-RAILWAY-BACKEND.up.railway.app/api
+```
+
+7. Redeploy Netlify.
+
+Important:
+
+- Do not use the default H2 file database in production unless you also configure persistent storage.
+- For Railway production, use PostgreSQL.
