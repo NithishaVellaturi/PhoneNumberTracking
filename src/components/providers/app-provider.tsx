@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react'
 import { useEffect, useEffectEvent } from 'react'
 import { authService } from '../../services/auth-service'
-import { primeCsrfToken, refreshSessionRequest } from '../../services/http'
+import { isRelativeProductionApi, primeCsrfToken, refreshSessionRequest } from '../../services/http'
 import { useAuthStore } from '../../store/auth-store'
 import { useToastStore } from '../../store/toast-store'
 import { ToastViewport } from '../ui/toast-viewport'
@@ -17,6 +17,13 @@ function AuthBootstrap() {
     let isMounted = true
 
     const bootstrap = async () => {
+      if (isRelativeProductionApi()) {
+        if (isMounted) {
+          clearSession()
+        }
+        return
+      }
+
       try {
         await primeCsrfToken()
         const session = await authService.session()

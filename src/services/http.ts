@@ -37,6 +37,18 @@ const sharedConfig = {
 export const http = axios.create(sharedConfig)
 const sessionHttp = axios.create(sharedConfig)
 
+export function isLocalHost() {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+}
+
+export function isRelativeProductionApi() {
+  return baseURL === '/api' && !isLocalHost()
+}
+
 function readCookie(name: string) {
   return document.cookie
     .split('; ')
@@ -116,12 +128,9 @@ export function toApiError(error: unknown) {
   const responseData = error.response?.data as { message?: string; data?: ErrorDetails } | undefined
   const requestUrl = typeof error.config?.url === 'string' ? error.config.url : ''
   const requestBaseUrl = typeof error.config?.baseURL === 'string' ? error.config.baseURL : baseURL
-  const isBrowser = typeof window !== 'undefined'
-  const hostname = isBrowser ? window.location.hostname : ''
-  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1'
   const isMissingProductionApi =
     error.response?.status === 404 &&
-    !isLocalhost &&
+    !isLocalHost() &&
     requestBaseUrl === '/api' &&
     requestUrl.startsWith('/')
 
