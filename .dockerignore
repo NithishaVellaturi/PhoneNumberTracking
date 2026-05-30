@@ -1,0 +1,11 @@
+.git
+.github
+node_modules
+dist
+.vite
+.vite-dev.log
+.vite-dev.err
+backend/target
+backend/data
+backend/*.log
+backend/*.err
