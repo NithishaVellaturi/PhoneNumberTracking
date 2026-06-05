@@ -1,94 +1,129 @@
 import { motion } from 'framer-motion'
-import { ArrowRight, ChartNoAxesCombined, Shield, Smartphone } from 'lucide-react'
+import { ArrowRight, Globe2, LocateFixed, MapPinned, ShieldCheck, Sparkles, Waves } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { SearchBar } from '../components/common/search-bar'
+import { MetricCard } from '../components/dashboard/metric-card'
+import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
-import { SectionHeading } from '../components/ui/section-heading'
-import { useAuthStore } from '../store/auth-store'
+import { Skeleton } from '../components/ui/skeleton'
+import { useDashboardStatsQuery } from '../hooks/use-tracksecure-queries'
+import { formatNumber, formatPercent } from '../utils/format'
 
 export function LandingPage() {
   const navigate = useNavigate()
-  const authStatus = useAuthStore((state) => state.status)
+  const { data, isLoading } = useDashboardStatsQuery()
   const [countryCode, setCountryCode] = useState('US')
   const [phoneNumber, setPhoneNumber] = useState('')
 
-  const handleSearch = () => {
-    if (authStatus === 'authenticated') {
-      navigate(`/app/track?country=${countryCode}&phone=${encodeURIComponent(phoneNumber)}`)
-      return
-    }
-
-    navigate('/auth/login', { replace: false })
+  const handleSubmit = () => {
+    navigate(`/lookup?number=${encodeURIComponent(phoneNumber)}&countryCode=${encodeURIComponent(countryCode)}`)
   }
 
   return (
     <div>
       <section className="hero-grid relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(34,211,238,0.18),_transparent_20%),radial-gradient(circle_at_top_left,_rgba(37,99,235,0.2),_transparent_26%)]" />
-        <div className="relative mx-auto grid max-w-7xl gap-14 px-4 py-20 md:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-28">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_18%),radial-gradient(circle_at_top_right,_rgba(14,165,233,0.18),_transparent_24%)]" />
+        <div className="section-shell relative grid gap-12 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
           <div className="space-y-8">
-            <div className="inline-flex rounded-full border border-blue-400/20 bg-blue-500/10 px-4 py-2 text-sm text-blue-200">Real-time phone intelligence for modern risk teams</div>
-            <div className="space-y-6">
-              <h1 className="max-w-3xl text-5xl font-semibold leading-tight text-white md:text-6xl">Track numbers, uncover <span className="text-gradient">fraud signals</span>, and act faster.</h1>
-              <p className="max-w-2xl text-lg leading-8 text-slate-300">TrackSecure now routes its dashboard, search history, spam reporting, and lookup flows through a live backend instead of placeholder data.</p>
+            <div className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-500/10 px-4 py-2 text-xs uppercase tracking-[0.32em] text-cyan-200">
+              Enterprise Phone Intelligence
             </div>
-            <SearchBar countryCode={countryCode} phoneNumber={phoneNumber} onCountryCodeChange={setCountryCode} onPhoneNumberChange={setPhoneNumber} onSubmit={handleSearch} submitLabel={authStatus === 'authenticated' ? 'Open tracking' : 'Sign in to track'} />
+            <div className="space-y-6">
+              <h1 className="max-w-4xl text-5xl font-semibold leading-tight text-white md:text-6xl">
+                Track <span className="text-gradient">Phone Number Intelligence</span>
+              </h1>
+              <p className="max-w-3xl text-lg leading-8 text-slate-300">
+                Instantly analyze phone numbers, carrier details, estimated regions, spam risk, and phone intelligence data.
+              </p>
+            </div>
+            <SearchBar
+              countryCode={countryCode}
+              phoneNumber={phoneNumber}
+              onCountryCodeChange={setCountryCode}
+              onPhoneNumberChange={setPhoneNumber}
+              onSubmit={handleSubmit}
+              submitLabel="Track Number"
+              helperText="Open access by design. No login, registration, JWT, or protected routes stand between your users and the intelligence workflow."
+            />
+            <div className="flex flex-wrap gap-3">
+              <Link to="/current-location">
+                <Button variant="secondary"><LocateFixed className="mr-2 h-4 w-4" />Show My Current Location</Button>
+              </Link>
+              <Link to="/lookup">
+                <Button variant="ghost">Open number lookup</Button>
+              </Link>
+            </div>
             <div className="flex flex-wrap gap-4 text-sm text-slate-300">
-              <div className="flex items-center gap-2"><Shield className="h-4 w-4 text-cyan-300" />JWT-backed sessions</div>
-              <div className="flex items-center gap-2"><Smartphone className="h-4 w-4 text-cyan-300" />Live number lookups</div>
-              <div className="flex items-center gap-2"><ChartNoAxesCombined className="h-4 w-4 text-cyan-300" />Database-driven analytics</div>
+              <div className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-cyan-300" />Real phone metadata</div>
+              <div className="flex items-center gap-2"><MapPinned className="h-4 w-4 text-cyan-300" />Estimated region mapping</div>
+              <div className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-cyan-300" />Database-driven analytics</div>
             </div>
           </div>
-          <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel relative rounded-[32px] p-6">
-            <div className="absolute -right-8 top-10 h-28 w-28 rounded-full bg-cyan-400/25 blur-3xl" />
-            <div className="absolute -left-8 bottom-10 h-32 w-32 rounded-full bg-blue-500/25 blur-3xl" />
-            <div className="relative space-y-5">
-              <div className="flex items-center justify-between"><p className="text-sm text-slate-300">Operational Snapshot</p><span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs text-emerald-300">Live backend ready</span></div>
-              <Card className="rounded-3xl bg-slate-950/55">
-                <p className="text-sm text-slate-400">What changed</p>
-                <div className="mt-4 grid gap-4 text-sm">
-                  <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-4 text-slate-200">Authentication uses real API endpoints with secure cookie sessions and automatic refresh handling.</div>
-                  <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-4 text-slate-200">Tracking requests persist search history and power live dashboard widgets from the database.</div>
-                  <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-4 text-slate-200">Spam reports are stored server-side and immediately influence risk scoring and analytics.</div>
+
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="glass-panel rounded-[34px] p-6">
+            <div className="space-y-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.28em] text-cyan-200/80">Platform Snapshot</p>
+                  <h2 className="mt-3 text-2xl font-semibold text-white">Instant public intelligence workflow</h2>
+                </div>
+                <div className="rounded-2xl bg-cyan-500/10 p-3 text-cyan-300">
+                  <Waves className="h-5 w-5" />
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <MetricCard label="Total Searches" value={isLoading ? '...' : formatNumber(data?.totalSearches ?? 0)} supporting="All-time database lookups" icon={Globe2} isLoading={isLoading} />
+                <MetricCard label="Searches Today" value={isLoading ? '...' : formatNumber(data?.searchesToday ?? 0)} supporting="New intelligence requests today" icon={Sparkles} isLoading={isLoading} />
+              </div>
+              <Card className="rounded-[28px] bg-slate-950/50">
+                <p className="text-sm text-slate-400">What the platform shows</p>
+                <div className="mt-4 grid gap-3 text-sm text-slate-200">
+                  <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-4">Carrier details, country flag, line type, timezone, and estimated location context.</div>
+                  <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-4">Spam risk scoring and lookup history powered by real backend persistence.</div>
+                  <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-4">Analytics dashboard with trend, top-country, and top-carrier charts from live data.</div>
                 </div>
               </Card>
-              <div className="grid gap-4 md:grid-cols-3">
-                {[
-                  ['Secure sessions', 'JWT + refresh cookies'],
-                  ['Live persistence', 'Users, searches, reports'],
-                  ['Dashboard data', 'Charts from API responses'],
-                ].map(([title, value]) => <Card key={title} className="rounded-3xl bg-slate-950/55 p-5"><p className="text-sm text-slate-400">{title}</p><p className="mt-3 text-lg font-semibold text-white">{value}</p></Card>)}
-              </div>
             </div>
           </motion.div>
         </div>
       </section>
-      <section className="mx-auto max-w-7xl space-y-10 px-4 py-20 md:px-6 lg:px-8">
-        <SectionHeading eyebrow="Capabilities" title="Built for secure phone intelligence operations" description="TrackSecure combines fast number verification, fraud analysis, and dashboard-ready analytics with a real backend and persistent storage." />
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {[
-            ['Carrier Lookup', 'Validated phone parsing, region mapping, and carrier resolution through the backend lookup engine.'],
-            ['Spam Analytics', 'Community reports directly update risk scoring and dashboard metrics.'],
-            ['Search History', 'Authenticated searches are persisted and exportable as CSV from the UI.'],
-            ['Role-ready Dashboard', 'Operational metrics, trends, and region distribution load from live API data.'],
-          ].map(([title, description]) => <Card key={title} className="rounded-3xl"><h3 className="text-lg font-semibold text-white">{title}</h3><p className="mt-3 text-sm leading-7 text-slate-300">{description}</p></Card>)}
+
+      <section className="section-shell py-20">
+        <div className="grid gap-6 md:grid-cols-3">
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-44 w-full rounded-[32px]" />)
+          ) : (
+            <>
+              <MetricCard label="Spam Signals" value={formatNumber(data?.spamReports ?? 0)} supporting="High-risk lookups captured in analytics" icon={ShieldCheck} />
+              <MetricCard label="Valid Lookups" value={formatNumber(data?.validLookups ?? 0)} supporting="Verified numbering-plan matches" icon={Sparkles} />
+              <MetricCard label="Average Spam Score" value={formatPercent(data?.averageSpamScore ?? 0)} supporting="Current average risk intensity" icon={MapPinned} />
+            </>
+          )}
         </div>
       </section>
-      <section className="mx-auto max-w-7xl px-4 py-10 md:px-6 lg:px-8">
-        <div className="grid gap-6 md:grid-cols-3">
+
+      <section className="section-shell pb-20">
+        <div className="grid gap-6 lg:grid-cols-3">
           {[
-            ['Audit completed', 'Legacy placeholder authentication and static dashboard values were removed across the application.'],
-            ['Persistence restored', 'User registration, search history, and spam report flows now write to the backend database layer.'],
-            ['Production-minded security', 'Cookie-based JWT sessions, CSRF protection, CORS, rate limiting, and BCrypt are wired into the stack.'],
+            ['Phone Intelligence Module', 'Validate country code, number length, and number format before surfacing carrier, line type, timezone, and estimated location intelligence.'],
+            ['Interactive Map', 'Render the estimated region on OpenStreetMap with a clear disclaimer that exact live device location is not available.'],
+            ['Analytics Dashboard', 'Explore lookup trends, top countries, top carriers, and risk distributions with responsive chart cards.'],
           ].map(([title, description]) => (
-            <Card key={title} className="rounded-3xl">
-              <p className="text-lg font-semibold text-white">{title}</p>
-              <p className="mt-4 text-sm leading-7 text-slate-300">{description}</p>
+            <Card key={title} className="rounded-[32px]">
+              <h3 className="text-2xl font-semibold text-white">{title}</h3>
+              <p className="mt-4 text-sm leading-8 text-slate-300">{description}</p>
             </Card>
           ))}
         </div>
-        <div className="mt-10 flex justify-center"><Link to="/app/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-300">Explore the dashboard <ArrowRight className="h-4 w-4" /></Link></div>
+        <div className="mt-10 flex flex-wrap items-center gap-4">
+          <Link to="/lookup" className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-300">
+            Open the tracking workflow <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-300">
+            Review the analytics dashboard <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
       </section>
     </div>
   )

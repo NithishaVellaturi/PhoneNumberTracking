@@ -1,16 +1,20 @@
 import { create } from 'zustand'
-import type { NumberTrackingResult } from '../types/api'
+import type { PhoneLookupResult } from '../types/api'
 
 interface AppState {
-  sidebarOpen: boolean
-  recentResult: NumberTrackingResult | null
-  toggleSidebar: () => void
-  setRecentResult: (result: NumberTrackingResult) => void
+  preferredCountryCode: string
+  draftPhoneNumber: string
+  latestLookup: PhoneLookupResult | null
+  setPreferredCountryCode: (countryCode: string) => void
+  setDraftPhoneNumber: (phoneNumber: string) => void
+  setLatestLookup: (result: PhoneLookupResult | null) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
-  sidebarOpen: false,
-  recentResult: null,
-  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-  setRecentResult: (recentResult) => set({ recentResult }),
+  preferredCountryCode: 'US',
+  draftPhoneNumber: '',
+  latestLookup: null,
+  setPreferredCountryCode: (preferredCountryCode) => set({ preferredCountryCode }),
+  setDraftPhoneNumber: (draftPhoneNumber) => set({ draftPhoneNumber }),
+  setLatestLookup: (latestLookup) => set({ latestLookup }),
 }))

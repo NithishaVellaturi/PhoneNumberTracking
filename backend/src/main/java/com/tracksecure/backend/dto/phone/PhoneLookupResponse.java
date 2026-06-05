@@ -1,30 +1,31 @@
-package com.tracksecure.backend.service;
+package com.tracksecure.backend.dto.phone;
 
 import com.tracksecure.backend.domain.LocationPrecision;
 import com.tracksecure.backend.domain.LookupStatus;
 import com.tracksecure.backend.domain.RiskLevel;
 
 import java.time.Instant;
+import java.util.List;
 
-public record PhoneLookupResult(
-        String phoneNumber,
+public record PhoneLookupResponse(
+        String number,
         String country,
         String countryFlag,
         String countryCode,
         String region,
-        String regionCode,
         String carrier,
         String lineType,
         String timezone,
         String estimatedLocation,
-        double estimatedLatitude,
-        double estimatedLongitude,
-        LocationPrecision locationPrecision,
-        GeoCodingService.GeoBounds mapBounds,
         int spamScore,
         RiskLevel riskLevel,
         LookupStatus status,
         boolean valid,
-        Instant lastLookupDate
+        double estimatedLatitude,
+        double estimatedLongitude,
+        LocationPrecision locationPrecision,
+        MapBoundsResponse mapBounds,
+        Instant lastLookupDate,
+        List<LookupHistoryItem> lookupHistory
 ) {
 }

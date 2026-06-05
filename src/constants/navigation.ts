@@ -1,24 +1,20 @@
 import {
   ChartColumnBig,
-  History,
   House,
+  LocateFixed,
   Search,
-  Settings,
-  ShieldAlert,
+  Sparkles,
 } from 'lucide-react'
 
 export const navLinks = [
   { label: 'Home', path: '/', icon: House },
-  { label: 'Dashboard', path: '/app/dashboard', icon: ChartColumnBig },
-  { label: 'Track Number', path: '/app/track', icon: Search },
-  { label: 'Spam Reports', path: '/app/spam-reports', icon: ShieldAlert },
-  { label: 'Search History', path: '/app/history', icon: History },
-  { label: 'Settings', path: '/app/settings', icon: Settings },
+  { label: 'Lookup', path: '/lookup', icon: Search },
+  { label: 'Dashboard', path: '/dashboard', icon: ChartColumnBig },
 ]
 
 export const quickActions = [
-  { title: 'Track new number', description: 'Run enriched operator and spam analysis.' },
-  { title: 'Report fraud', description: 'Flag suspicious callers for the community.' },
-  { title: 'Export history', description: 'Download investigation data as CSV.' },
-  { title: 'Alerts', description: 'Manage real-time spam notifications.' },
+  { title: 'Track number', description: 'Run a fresh phone intelligence lookup from the public landing page.', icon: Search },
+  { title: 'Use current location', description: 'Show the current browser user location directly in the app after consent.', icon: LocateFixed },
+  { title: 'Review dashboard', description: 'Inspect search volume, spam signals, and top carrier trends.', icon: ChartColumnBig },
+  { title: 'Open lookup history', description: 'See the most recent verified search trail for the selected number.', icon: Sparkles },
 ]

@@ -9,99 +9,78 @@ export interface ErrorDetails {
   fieldErrors: Record<string, string>
 }
 
-export interface User {
-  id: string
-  name: string
-  email: string
-  company: string
-  role: 'USER' | 'ADMIN'
-  createdAt: string
-  lastLoginAt: string | null
-}
-
-export interface AuthPayload {
-  email: string
-  password: string
-}
-
-export interface RegisterPayload extends AuthPayload {
-  name: string
-  company?: string
-}
-
-export interface AuthSession {
-  user: User
-  expiresAt: string
-}
-
 export interface DailyAnalyticsPoint {
-  day: string
-  searches: number
+  date: string
+  totalSearches: number
   spamReports: number
 }
 
-export interface RegionStatistic {
-  region: string
-  count: number
+export interface NamedMetric {
+  label: string
+  value: number
 }
 
-export interface RecentActivity {
-  title: string
-  description: string
-  type: string
-  occurredAt: string
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH'
+export type LookupStatus = 'VALID' | 'UNKNOWN' | 'INVALID'
+export type LocationPrecision = 'AREA' | 'REGION' | 'COUNTRY' | 'UNAVAILABLE'
+
+export interface MapBounds {
+  southLatitude: number
+  northLatitude: number
+  westLongitude: number
+  eastLongitude: number
 }
 
-export interface SpamReportSummary {
+export interface LookupHistoryItem {
   phoneNumber: string
-  reportCount: number
-  mostRecentReason: string
+  country: string
+  region: string
+  carrier: string
+  lineType: string
   spamScore: number
   riskLevel: RiskLevel
-  lastReportedAt: string
+  status: LookupStatus
+  searchedAt: string
 }
 
 export interface DashboardStats {
   totalSearches: number
+  searchesToday: number
   spamReports: number
-  activeUsers: number
-  searchAnalytics: DailyAnalyticsPoint[]
-  regionStatistics: RegionStatistic[]
-  recentActivity: RecentActivity[]
-  recentReports: SpamReportSummary[]
+  validLookups: number
+  invalidLookups: number
+  averageSpamScore: number
+  topCountries: NamedMetric[]
+  topCarriers: NamedMetric[]
 }
 
-export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH'
+export interface DashboardTrends {
+  lookupTrends: DailyAnalyticsPoint[]
+  topCountries: NamedMetric[]
+  topCarriers: NamedMetric[]
+  riskDistribution: NamedMetric[]
+  lineTypeDistribution: NamedMetric[]
+  recentLookups: LookupHistoryItem[]
+}
 
-export interface NumberTrackingResult {
-  phoneNumber: string
+export interface PhoneLookupResult {
+  number: string
+  country: string
+  countryFlag: string
   countryCode: string
-  countryName: string
-  savedNumber: boolean
-  savedCallerName: string | null
-  businessCallerName: string | null
-  operator: string
   region: string
   lineType: string
+  carrier: string
+  timezone: string
+  estimatedLocation: string
   spamScore: number
   riskLevel: RiskLevel
-  reportCount: number
-  lastChecked: string
-}
-
-export interface SearchHistoryItem extends NumberTrackingResult {
-  id: string
-}
-
-export interface SpamReportPayload {
-  phoneNumber: string
-  countryCode: string
-  reason: string
-  notes?: string
-}
-
-export interface SaveCallerLabelPayload {
-  phoneNumber: string
-  countryCode?: string
-  callerName?: string
+  status: LookupStatus
+  valid: boolean
+  estimatedLatitude: number
+  estimatedLongitude: number
+  locationPrecision: LocationPrecision
+  mapBounds: MapBounds
+  lastLookupDate: string
+  lookupHistory: LookupHistoryItem[]
 }

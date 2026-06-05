@@ -1,60 +1,110 @@
-import { motion } from 'framer-motion'
-import { Activity, ArrowUpRight, ShieldAlert, Users } from 'lucide-react'
+import { Activity, AlertTriangle, Globe2, RadioTower } from 'lucide-react'
 import { AreaChartCard } from '../components/charts/area-chart-card'
+import { BarChartCard } from '../components/charts/bar-chart-card'
 import { PieChartCard } from '../components/charts/pie-chart-card'
+import { MetricCard } from '../components/dashboard/metric-card'
+import { Badge } from '../components/ui/badge'
 import { Card } from '../components/ui/card'
 import { Skeleton } from '../components/ui/skeleton'
-import { quickActions } from '../constants/navigation'
-import { useApiResource } from '../hooks/useApiResource'
-import { trackingService } from '../services/tracking-service'
-import { formatDateTime, formatNumber } from '../utils/format'
+import { useDashboardStatsQuery, useDashboardTrendsQuery } from '../hooks/use-tracksecure-queries'
+import { formatDateTime, formatLookupStatus, formatNumber, formatPercent, formatRiskLabel, getRiskTone, getStatusTone } from '../utils/format'
 
 export function DashboardPage() {
-  const { data, error, isLoading } = useApiResource(
-    async () => {
-      const response = await trackingService.getDashboardStats()
-      return response.data
-    },
-    { pollMs: 60_000 },
-  )
+  const statsQuery = useDashboardStatsQuery()
+  const trendsQuery = useDashboardTrendsQuery()
 
-  const metrics = data === null ? [] : [
-    { key: 'totalSearches', label: 'Total Searches', value: formatNumber(data.totalSearches) },
-    { key: 'spamReports', label: 'Spam Reports', value: formatNumber(data.spamReports) },
-    { key: 'activeUsers', label: 'Active Users', value: formatNumber(data.activeUsers) },
-    { key: 'trackedRegions', label: 'Tracked Regions', value: formatNumber(data.regionStatistics.length) },
-  ]
+  const stats = statsQuery.data
+  const trends = trendsQuery.data
+  const isLoading = statsQuery.isLoading || trendsQuery.isLoading
+  const error = statsQuery.error ?? trendsQuery.error
 
   return (
-    <div className="space-y-6">
-      {error ? <Card className="rounded-3xl border border-rose-400/20 bg-rose-500/10 text-sm text-rose-100">{error}</Card> : null}
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {isLoading ? Array.from({ length: 4 }).map((_, index) => <Card key={index} className="rounded-3xl"><Skeleton className="h-28 w-full" /></Card>) : metrics.map((metric, index) => (
-          <motion.div key={metric.key} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.06 }}>
-            <Card className="rounded-3xl">
-              <div className="flex items-start justify-between">
-                <div><p className="text-sm text-slate-400">{metric.label}</p><h3 className="mt-3 text-3xl font-semibold text-white">{metric.value}</h3><p className="mt-2 text-sm text-cyan-300">Live backend data</p></div>
-                <div className="rounded-2xl bg-blue-500/10 p-3 text-blue-300"><ArrowUpRight className="h-5 w-5" /></div>
-              </div>
-            </Card>
-          </motion.div>
-        ))}
+    <div className="section-shell space-y-8 py-12">
+      <div className="max-w-3xl space-y-4">
+        <div className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-500/10 px-4 py-2 text-xs uppercase tracking-[0.28em] text-cyan-200">
+          Analytics Dashboard
+        </div>
+        <h1 className="text-4xl font-semibold text-white md:text-5xl">Real lookup analytics, carrier concentration, and risk trends</h1>
+        <p className="text-base leading-8 text-slate-300 md:text-lg">
+          Every chart and widget below is powered by live database data from TrackSecure lookup activity. No demo users, no static JSON, and no placeholder metrics.
+        </p>
       </div>
-      <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]"><AreaChartCard data={data?.searchAnalytics ?? []} isLoading={isLoading} /><PieChartCard data={data?.regionStatistics ?? []} isLoading={isLoading} /></div>
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card className="rounded-3xl">
-          <div className="mb-5"><h3 className="text-lg font-semibold text-white">Quick Actions</h3><p className="text-sm text-slate-400">Access high-priority workflows</p></div>
-          <div className="grid gap-4 md:grid-cols-2">
-            {quickActions.map((action, index) => {
-              const Icon = [Activity, ShieldAlert, Users, ArrowUpRight][index]
-              return <div key={action.title} className="rounded-3xl border border-white/8 bg-slate-950/55 p-5"><div className="mb-4 inline-flex rounded-2xl bg-white/6 p-3 text-cyan-300"><Icon className="h-5 w-5" /></div><p className="font-medium text-white">{action.title}</p><p className="mt-2 text-sm leading-7 text-slate-400">{action.description}</p></div>
-            })}
+
+      {error ? (
+        <Card className="rounded-[32px] border border-rose-400/20 bg-rose-500/10 text-sm text-rose-100">
+          {error instanceof Error ? error.message : 'Dashboard data could not be loaded.'}
+        </Card>
+      ) : null}
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard label="Total Searches" value={formatNumber(stats?.totalSearches ?? 0)} supporting="All-time public lookups" icon={Globe2} isLoading={isLoading} />
+        <MetricCard label="Searches Today" value={formatNumber(stats?.searchesToday ?? 0)} supporting="Realtime platform activity" icon={Activity} isLoading={isLoading} />
+        <MetricCard label="Spam Reports" value={formatNumber(stats?.spamReports ?? 0)} supporting="High-risk lookups logged into analytics" icon={AlertTriangle} isLoading={isLoading} />
+        <MetricCard label="Valid Lookups" value={formatNumber(stats?.validLookups ?? 0)} supporting="Verified numbering-plan matches" icon={RadioTower} isLoading={isLoading} />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[1.45fr_0.95fr]">
+        <AreaChartCard data={trends?.lookupTrends ?? []} isLoading={isLoading} />
+        <PieChartCard data={stats?.topCountries ?? []} title="Top Countries" description="Search volume by detected country." isLoading={isLoading} />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <BarChartCard data={trends?.topCarriers ?? []} title="Top Carriers" description="Most frequently observed telecom operators." isLoading={isLoading} />
+        <BarChartCard data={trends?.riskDistribution ?? []} title="Risk Distribution" description="Low, medium, and high-risk lookup mix." isLoading={isLoading} />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+        <Card className="rounded-[32px]">
+          <div>
+            <h3 className="text-2xl font-semibold text-white">Line Type Distribution</h3>
+            <p className="mt-2 text-sm leading-7 text-slate-400">Live breakdown of line types observed across persisted lookups.</p>
+          </div>
+          <div className="mt-6 space-y-4">
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-18 w-full" />)
+            ) : (
+              (trends?.lineTypeDistribution ?? []).map((item) => (
+                <div key={item.label} className="rounded-3xl border border-white/8 bg-slate-950/45 p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-semibold text-white">{item.label}</p>
+                      <p className="mt-1 text-sm text-slate-400">{formatNumber(item.value)} recorded lookups</p>
+                    </div>
+                    <Badge label={`${item.value}`} tone="info" />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </Card>
-        <Card className="rounded-3xl">
-          <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
+
+        <Card className="rounded-[32px]">
+          <div>
+            <h3 className="text-2xl font-semibold text-white">Recent Lookups</h3>
+            <p className="mt-2 text-sm leading-7 text-slate-400">Most recent phone intelligence requests recorded by the backend.</p>
+          </div>
           <div className="mt-6 space-y-4">
-            {isLoading ? Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-24 w-full" />) : (data?.recentActivity.length ?? 0) === 0 ? <div className="rounded-2xl border border-white/8 bg-slate-950/45 p-4 text-sm text-slate-300">Activity will appear here after users search or submit reports.</div> : data?.recentActivity.map((item) => <div key={`${item.type}-${item.occurredAt}-${item.title}`} className="rounded-2xl border border-white/8 bg-slate-950/45 p-4"><div className="flex items-center justify-between gap-3"><p className="font-medium text-white">{item.title}</p><span className="text-xs text-slate-500">{formatDateTime(item.occurredAt)}</span></div><p className="mt-2 text-sm text-slate-400">{item.description}</p></div>)}
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-24 w-full" />)
+            ) : (
+              (trends?.recentLookups ?? []).map((lookup) => (
+                <div key={`${lookup.phoneNumber}-${lookup.searchedAt}`} className="rounded-3xl border border-white/8 bg-slate-950/45 p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-white">{lookup.phoneNumber}</p>
+                      <p className="mt-1 text-sm text-slate-400">{lookup.region}, {lookup.country}</p>
+                    </div>
+                    <div className="text-sm text-slate-400">{formatDateTime(lookup.searchedAt)}</div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Badge label={formatLookupStatus(lookup.status)} tone={getStatusTone(lookup.status)} />
+                    <Badge label={formatRiskLabel(lookup.riskLevel)} tone={getRiskTone(lookup.riskLevel)} />
+                    <Badge label={`Spam ${formatPercent(lookup.spamScore)}`} tone={getRiskTone(lookup.spamScore)} />
+                  </div>
+                  <p className="mt-4 text-sm text-slate-300">{lookup.carrier} • {lookup.lineType}</p>
+                </div>
+              ))
+            )}
           </div>
         </Card>
       </div>

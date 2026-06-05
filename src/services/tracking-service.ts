@@ -1,43 +1,56 @@
 import type {
   ApiResponse,
   DashboardStats,
-  NumberTrackingResult,
-  SaveCallerLabelPayload,
-  SearchHistoryItem,
-  SpamReportPayload,
+  DashboardTrends,
+  MapBounds,
+  PhoneLookupResult,
 } from '../types/api'
-import { http, primeCsrfToken } from './http'
+import { http } from './http'
+
+const emptyMapBounds: MapBounds = {
+  southLatitude: 0,
+  northLatitude: 0,
+  westLongitude: 0,
+  eastLongitude: 0,
+}
+
+type RawPhoneLookupResult = Omit<PhoneLookupResult, 'mapBounds'> & {
+  mapBounds?: Partial<MapBounds> | null
+}
+
+function normalizeMapBounds(mapBounds: RawPhoneLookupResult['mapBounds']): MapBounds {
+  return {
+    southLatitude: typeof mapBounds?.southLatitude === 'number' ? mapBounds.southLatitude : emptyMapBounds.southLatitude,
+    northLatitude: typeof mapBounds?.northLatitude === 'number' ? mapBounds.northLatitude : emptyMapBounds.northLatitude,
+    westLongitude: typeof mapBounds?.westLongitude === 'number' ? mapBounds.westLongitude : emptyMapBounds.westLongitude,
+    eastLongitude: typeof mapBounds?.eastLongitude === 'number' ? mapBounds.eastLongitude : emptyMapBounds.eastLongitude,
+  }
+}
+
+function normalizePhoneLookupResult(result: RawPhoneLookupResult): PhoneLookupResult {
+  return {
+    ...result,
+    mapBounds: normalizeMapBounds(result.mapBounds),
+  }
+}
 
 export const trackingService = {
   getDashboardStats: async () => {
     const { data } = await http.get<ApiResponse<DashboardStats>>('/dashboard/stats')
     return data
   },
-  trackNumber: async (phoneNumber: string, countryCode: string) => {
-    const { data } = await http.get<ApiResponse<NumberTrackingResult>>('/track-number', {
-      params: { phoneNumber, countryCode },
+  getDashboardTrends: async () => {
+    const { data } = await http.get<ApiResponse<DashboardTrends>>('/dashboard/trends')
+    return data
+  },
+  trackNumber: async (phoneNumber: string, countryCode?: string) => {
+    const { data } = await http.get<ApiResponse<RawPhoneLookupResult>>('/phone/lookup', {
+      params: { number: phoneNumber, countryCode },
     })
-    return data
-  },
-  reportSpam: async (payload: SpamReportPayload) => {
-    await primeCsrfToken()
-    const { data } = await http.post<ApiResponse<NumberTrackingResult>>('/report-spam', payload)
-    return data
-  },
-  getSearchHistory: async () => {
-    const { data } = await http.get<ApiResponse<SearchHistoryItem[]>>('/search-history')
-    return data
-  },
-  saveCallerLabel: async (payload: SaveCallerLabelPayload) => {
-    await primeCsrfToken()
-    const { data } = await http.post<ApiResponse<NumberTrackingResult>>('/caller-labels', payload)
-    return data
-  },
-  removeCallerLabel: async (phoneNumber: string, countryCode?: string) => {
-    await primeCsrfToken()
-    const { data } = await http.delete<ApiResponse<NumberTrackingResult>>('/caller-labels', {
-      params: { phoneNumber, countryCode },
-    })
-    return data
+
+    return {
+      ...data,
+      data: normalizePhoneLookupResult(data.data),
+    }
   },
 }
