@@ -63,3 +63,69 @@ body { margin: 0; min-width: 320px; min-height: 100vh; background: transparent; 
   .scrollbar-hidden { scrollbar-width: none; }
   .scrollbar-hidden::-webkit-scrollbar { display: none; }
 }
+
+/* ─── Light Theme ─── */
+html.light {
+  color-scheme: light;
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 24%),
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.06), transparent 26%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 36%, #f8fafc 100%);
+  color: #1e293b;
+}
+
+html.light body {
+  background: transparent;
+  color: #1e293b;
+}
+
+html.light header.sticky {
+  background: rgba(248, 250, 252, 0.85);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+html.light header .text-slate-300,
+html.light header .text-slate-200,
+html.light header .text-slate-100 {
+  color: #475569;
+}
+
+html.light .glass-panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(248, 250, 252, 0.75));
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+html.light .text-white { color: #0f172a; }
+html.light .text-slate-100 { color: #1e293b; }
+html.light .text-slate-200 { color: #334155; }
+html.light .text-slate-300 { color: #475569; }
+html.light .text-slate-400 { color: #64748b; }
+
+html.light .text-gradient {
+  background-image: linear-gradient(to right, #0284c7, #0369a1, #1d4ed8);
+}
+
+html.light .text-cyan-200,
+html.light .text-cyan-300,
+html.light .text-cyan-100 {
+  color: #0369a1;
+}
+
+html.light .bg-emerald-500\/15 { background: rgba(16, 185, 129, 0.12); }
+html.light .bg-amber-500\/15 { background: rgba(245, 158, 11, 0.12); }
+html.light .bg-rose-500\/15 { background: rgba(244, 63, 94, 0.12); }
+html.light .bg-blue-500\/15 { background: rgba(59, 130, 246, 0.12); }
+html.light .text-emerald-300 { color: #059669; }
+html.light .text-amber-300 { color: #d97706; }
+html.light .text-rose-300 { color: #e11d48; }
+html.light .text-blue-300 { color: #2563eb; }
+
+html.light .text-blue-100,
+html.light .text-cyan-100 {
+  color: #1e40af;
+}
+
+html.light .hero-grid {
+  background-image:
+    linear-gradient(rgba(100, 116, 139, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 116, 139, 0.08) 1px, transparent 1px);
+}

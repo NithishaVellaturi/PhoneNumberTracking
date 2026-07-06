@@ -5,6 +5,8 @@ import { SearchBar } from '../components/common/search-bar'
 import { LookupDetailCard } from '../components/lookup/lookup-detail-card'
 import { LookupHistoryCard } from '../components/lookup/lookup-history-card'
 import { LookupMapCard } from '../components/lookup/lookup-map-card'
+import { ShareResultsCard } from '../components/lookup/share-results-card'
+import { SpamAlertCard } from '../components/lookup/spam-alert-card'
 import { LookupStatusCard } from '../components/lookup/lookup-status-card'
 import { Badge } from '../components/ui/badge'
 import { Card } from '../components/ui/card'
@@ -142,6 +144,8 @@ export function LookupPage() {
           </div>
         ) : null}
       </Card>
+
+      {result ? <SpamAlertCard result={result} /> : null}
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <LookupStatusCard result={result} isLoading={isLoading} />
@@ -298,6 +302,8 @@ export function LookupPage() {
         <LookupMapCard result={result} isLoading={isLoading} />
         <LookupHistoryCard history={result?.lookupHistory ?? []} isLoading={isLoading} />
       </div>
+
+      {result ? <ShareResultsCard result={result} /> : null}
     </div>
   )
 }

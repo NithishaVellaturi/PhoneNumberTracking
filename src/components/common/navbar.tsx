@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { navLinks } from '../../constants/navigation'
 import { Button } from '../ui/button'
 import { Logo } from './logo'
+import { ThemeToggle } from './theme-toggle'
 
 export function Navbar() {
   const location = useLocation()
@@ -26,6 +27,7 @@ export function Navbar() {
           ))}
         </nav>
         <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle />
           <Link to="/current-location"><Button variant="secondary"><LocateFixed className="mr-2 h-4 w-4" />Current Location</Button></Link>
           <Link to="/dashboard"><Button variant="ghost">Analytics</Button></Link>
           <Link to="/lookup"><Button><PhoneCall className="mr-2 h-4 w-4" />Track Number</Button></Link>
